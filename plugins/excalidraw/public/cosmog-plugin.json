@@ -1,0 +1,19 @@
+{
+  "id": "excalidraw",
+  "name": "Excalidraw",
+  "version": "0.1.0",
+  "apiVersion": 1,
+  "kind": "document-editor",
+  "entry": "index.html",
+  "platforms": ["desktop"],
+  "minAppVersion": "1.1.42",
+  "fileTypes": [
+    {
+      "ext": ".excalidraw",
+      "mime": "application/vnd.excalidraw+json",
+      "label": "Drawing",
+      "template": "templates/empty.excalidraw"
+    }
+  ],
+  "permissions": []
+}
