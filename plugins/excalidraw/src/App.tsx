@@ -28,6 +28,9 @@ export function App() {
   const apiReady = useMemo(() => deferred<Api>(), []);
   const baseline = useRef<string | null>(null);
   const client = useRef<Client | null>(null);
+  // The file's saved theme must never override the host's.
+  const themeRef = useRef<Theme>("light");
+  themeRef.current = theme;
 
   useEffect(() => {
     client.current = connect({
@@ -46,7 +49,7 @@ export function App() {
         }
         const r = restore(data, null, null, { repairBindings: true });
         setReadOnly(doc.readOnly);
-        api.updateScene({ elements: r.elements, appState: r.appState, captureUpdate: CaptureUpdateAction.NEVER });
+        api.updateScene({ elements: r.elements, appState: { ...r.appState, theme: themeRef.current }, captureUpdate: CaptureUpdateAction.NEVER });
         api.addFiles(Object.values(r.files));
         api.history.clear();
         api.scrollToContent(undefined, { fitToContent: true, animate: false });
