@@ -2,6 +2,7 @@
 // The app keeps its own copy of these types; apiVersion keeps both sides honest.
 
 export const API_VERSION = 1;
+const DIRTY_RESEND_MS = 1_000;
 
 export type Theme = "light" | "dark";
 export type ToastKind = "info" | "success" | "error";
@@ -51,6 +52,7 @@ function toBuffer(b: Bytes): ArrayBuffer {
 
 export function connect(h: Handlers, opts: Options = {}): Client {
   let dirty: boolean | null = null;
+  let lastDirtySent = 0;
 
   const reply = (id: string | undefined, result: unknown, transfer: Transferable[] = []) => {
     if (id) send({ id, result }, transfer);
@@ -115,8 +117,12 @@ export function connect(h: Handlers, opts: Options = {}): Client {
 
   return {
     setDirty(d) {
-      if (d === dirty) return;
+      // Repeat the current state at most once a second, so a host that lost track
+      // (missed event, reload) is corrected by the next edit instead of never.
+      const now = Date.now();
+      if (d === dirty && now - lastDirtySent < DIRTY_RESEND_MS) return;
       dirty = d;
+      lastDirtySent = now;
       send({ method: "doc.dirty", params: { dirty: d } });
     },
     requestSave() {
