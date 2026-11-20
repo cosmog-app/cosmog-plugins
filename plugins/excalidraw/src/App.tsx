@@ -27,6 +27,8 @@ export function App() {
   const [readOnly, setReadOnly] = useState(false);
   const apiReady = useMemo(() => deferred<Api>(), []);
   const baseline = useRef<string | null>(null);
+  // Signature of what the host last serialized; becomes the baseline once the host saves it.
+  const serialized = useRef<string | null>(null);
   const client = useRef<Client | null>(null);
   // The file's saved theme must never override the host's.
   const themeRef = useRef<Theme>("light");
@@ -57,6 +59,7 @@ export function App() {
       },
       async onSerialize() {
         const api = await apiReady.promise;
+        serialized.current = signature(api.getSceneElementsIncludingDeleted(), api.getAppState(), api.getFiles());
         const json = serializeAsJSON(api.getSceneElements(), api.getAppState(), api.getFiles(), "local");
         return new TextEncoder().encode(json);
       },
@@ -71,6 +74,14 @@ export function App() {
         });
       },
       onTheme: setTheme,
+      async onSaved() {
+        const api = await apiReady.promise;
+        if (serialized.current === null) return;
+        baseline.current = serialized.current;
+        // Edits made while the save was in flight stay dirty.
+        const now = signature(api.getSceneElementsIncludingDeleted(), api.getAppState(), api.getFiles());
+        client.current?.setDirty(now !== baseline.current);
+      },
     });
   }, [apiReady]);
 

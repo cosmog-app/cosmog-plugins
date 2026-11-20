@@ -23,6 +23,8 @@ export interface Handlers {
   /** Optional small PNG thumbnail. */
   onExportPreview?(): Bytes | Blob | Promise<Bytes | Blob>;
   onTheme?(mode: Theme): void;
+  /** The host stored what the last onSerialize returned. Move the dirty baseline there and call setDirty. */
+  onSaved?(): void;
 }
 
 export interface Options {
@@ -70,6 +72,11 @@ export function connect(h: Handlers, opts: Options = {}): Client {
       const out = await h.onExportPreview();
       const buf = out instanceof Blob ? await out.arrayBuffer() : toBuffer(out);
       reply(id, { png: buf }, [buf]);
+    },
+    "doc.saved": async () => {
+      // Forget the cached flag so the next setDirty always reaches the host.
+      dirty = null;
+      h.onSaved?.();
     },
     "ui.theme": async (p) => {
       if (p.mode === "light" || p.mode === "dark") h.onTheme?.(p.mode);
