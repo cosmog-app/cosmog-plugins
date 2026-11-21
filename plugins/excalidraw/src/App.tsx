@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  CaptureUpdateAction, Excalidraw, exportToBlob, hashElementsVersion, restore, serializeAsJSON,
+  CaptureUpdateAction, Excalidraw, exportToBlob, FONT_FAMILY, hashElementsVersion, restore, serializeAsJSON,
 } from "@excalidraw/excalidraw";
 import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
 import { connect, type Client, type Theme } from "@cosmog/plugin-sdk";
@@ -14,6 +14,26 @@ type Files = ReturnType<Api["getFiles"]>;
 // What a save would change: elements, saved appState fields, embedded files.
 function signature(elements: Parameters<typeof hashElementsVersion>[0], s: State, files: Files): string {
   return `${hashElementsVersion(elements)}|${s.viewBackgroundColor}|${s.gridModeEnabled}|${s.gridSize}|${Object.keys(files).length}`;
+}
+
+const FONT_NAME = new Map(Object.entries(FONT_FAMILY).map(([name, id]) => [id, name]));
+
+// updateScene, unlike initialData, never loads the scene's fonts, and canvas text doesn't trigger a
+// load, so text would stay in a fallback font. Excalidraw redraws text on document "loadingdone".
+function loadSceneFonts(elements: ReturnType<typeof restore>["elements"]) {
+  const chars = new Map<string, Set<string>>();
+  for (const el of elements) {
+    if (el.type !== "text" || el.isDeleted) continue;
+    const name = FONT_NAME.get(el.fontFamily);
+    if (!name) continue;
+    const set = chars.get(name) ?? new Set<string>();
+    for (const c of el.text) set.add(c);
+    chars.set(name, set);
+  }
+  for (const [name, set] of chars) {
+    // The text picks the unicode-range segments actually needed (CJK is split into many).
+    void document.fonts.load(`20px "${name}"`, [...set].join("")).catch(() => {});
+  }
 }
 
 function deferred<T>() {
@@ -53,6 +73,7 @@ export function App() {
         setReadOnly(doc.readOnly);
         api.updateScene({ elements: r.elements, appState: { ...r.appState, theme: themeRef.current }, captureUpdate: CaptureUpdateAction.NEVER });
         api.addFiles(Object.values(r.files));
+        loadSceneFonts(r.elements);
         api.history.clear();
         api.scrollToContent(undefined, { fitToContent: true, animate: false });
         baseline.current = signature(api.getSceneElementsIncludingDeleted(), api.getAppState(), api.getFiles());
