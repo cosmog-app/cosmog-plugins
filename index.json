@@ -4,12 +4,13 @@
     {
       "id": "excalidraw",
       "name": "Excalidraw",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "summary": "Sketch hand-drawn diagrams and whiteboards.",
-      "description": "Open and edit .excalidraw files straight from your buckets. Drawings save back to the same file, so they stay compatible with excalidraw.com and other Excalidraw apps.\n\nRuns offline in Cosmog's sandbox: no network access and no access to your accounts. Live collaboration and share links are turned off.",
+      "description": "Open and edit .excalidraw files straight from your buckets. Drawings save back to the same file, so they stay compatible with excalidraw.com and other Excalidraw apps.\n\nExcalidraw is free, open source software (MIT) made by Excalidraw and its contributors. This plugin packages their editor unchanged for Cosmog; the credit for the editor is theirs. License notices for everything bundled ship in the package as THIRD_PARTY_NOTICES.txt.\n\nRuns offline in Cosmog's sandbox: no network access and no access to your accounts. Live collaboration and share links are turned off.",
       "icon": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjggMTI4Ij4KICA8cmVjdCB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgcng9IjI4IiBmaWxsPSIjNjk2NWRiIi8+CiAgPHBhdGggZD0iTTM0IDc4YzEwLTI2IDIyLTM4IDMwLTM0cy02IDIyIDQgMjYgMTgtMTQgMjYtMjYiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSI3IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KICA8cmVjdCB4PSIzMCIgeT0iODYiIHdpZHRoPSIyNiIgaGVpZ2h0PSIxOCIgcng9IjQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSI2IiB0cmFuc2Zvcm09InJvdGF0ZSgtNiA0MyA5NSkiLz4KICA8Y2lyY2xlIGN4PSI4NiIgY3k9Ijk0IiByPSIxMSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjYiLz4KPC9zdmc+Cg==",
-      "author": "Cosmog",
+      "author": "Excalidraw · packaged by Cosmog",
       "license": "MIT",
+      "homepage": "https://excalidraw.com",
       "repository": "https://github.com/echosonusharma/cosmog-plugins/tree/main/plugins/excalidraw",
       "upstream": {
         "name": "Excalidraw",
@@ -25,13 +26,13 @@
           "label": "Drawing"
         }
       ],
-      "releasedAt": "2026-11-21T11:36:02.426Z",
+      "releasedAt": "2026-11-21T11:42:10.442Z",
       "download": {
-        "url": "https://github.com/echosonusharma/cosmog-plugins/releases/download/excalidraw-v0.1.1/excalidraw-0.1.1.zip",
-        "size": 15729836,
-        "sha256": "bc6f6006aeb069de25a0e0ebb3f3fd4239179b0659593b824d78a3318e6e053b",
+        "url": "https://github.com/echosonusharma/cosmog-plugins/releases/download/excalidraw-v0.1.2/excalidraw-0.1.2.zip",
+        "size": 15767182,
+        "sha256": "68403c2a7830d86e1e2584a167443db9ab4ed3a8c1d34d1d8003db93a43b7ea7",
         "keyId": "cosmog-2026-1",
-        "signature": "fpCDrVTkduwoXomXdZ/WbPwlJMGgeEVQ7XBkPJ7U6AwqzXR2IUDIKScL/tLKEqGP07xi87s2SFLsFd5tRa7GBw=="
+        "signature": "yYJ6lyXqoj7SSQMvaZF8g4T7qMe37zWJG02iaMFFIwj4sQuUJqeyzAmhh3pJy0hieYQxXviuPHSjGQRX1U5lAg=="
       }
     }
   ]
