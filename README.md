@@ -3,7 +3,9 @@
 Plugins for [Cosmog](https://github.com/echosonusharma/cosmog). Design: `docs/PLUGINS.md` in the app repo.
 
 - `sdk/`: `@cosmog/plugin-sdk`, plugin side of protocol v1.
-- `plugins/excalidraw/`: Excalidraw document editor (desktop).
+- `plugins/excalidraw/`: Excalidraw document editor (desktop). The editor is
+  [Excalidraw](https://github.com/excalidraw/excalidraw) (MIT, by Excalidraw and contributors), packaged
+  unchanged; its build writes `THIRD_PARTY_NOTICES.txt` into the package.
 
 ## Build and load
 

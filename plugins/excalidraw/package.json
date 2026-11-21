@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc --noEmit && vite build && node scripts/copy-fonts.js",
+    "build": "tsc --noEmit && vite build && node scripts/copy-fonts.js && node scripts/notices.js",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

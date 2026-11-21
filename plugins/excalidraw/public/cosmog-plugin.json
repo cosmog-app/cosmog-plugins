@@ -1,7 +1,7 @@
 {
   "id": "excalidraw",
   "name": "Excalidraw",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "apiVersion": 1,
   "kind": "document-editor",
   "entry": "index.html",
@@ -19,13 +19,14 @@
   ],
   "permissions": [],
   "summary": "Sketch hand-drawn diagrams and whiteboards.",
-  "description": "Open and edit .excalidraw files straight from your buckets. Drawings save back to the same file, so they stay compatible with excalidraw.com and other Excalidraw apps.\n\nRuns offline in Cosmog's sandbox: no network access and no access to your accounts. Live collaboration and share links are turned off.",
+  "description": "Open and edit .excalidraw files straight from your buckets. Drawings save back to the same file, so they stay compatible with excalidraw.com and other Excalidraw apps.\n\nExcalidraw is free, open source software (MIT) made by Excalidraw and its contributors. This plugin packages their editor unchanged for Cosmog; the credit for the editor is theirs. License notices for everything bundled ship in the package as THIRD_PARTY_NOTICES.txt.\n\nRuns offline in Cosmog's sandbox: no network access and no access to your accounts. Live collaboration and share links are turned off.",
   "icon": "icon.svg",
-  "author": "Cosmog",
+  "author": "Excalidraw · packaged by Cosmog",
   "license": "MIT",
   "repository": "https://github.com/echosonusharma/cosmog-plugins/tree/main/plugins/excalidraw",
   "upstream": {
     "name": "Excalidraw",
     "url": "https://github.com/excalidraw/excalidraw"
-  }
+  },
+  "homepage": "https://excalidraw.com"
 }
