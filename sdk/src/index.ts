@@ -83,6 +83,16 @@ export function connect(h: Handlers, opts: Options = {}): Client {
     "ui.theme": async (p) => {
       if (p.mode === "light" || p.mode === "dark") h.onTheme?.(p.mode);
     },
+    // Pinch the host caught before the webview zoomed the page (Linux). Replayed as Ctrl+wheel,
+    // which is what browsers send for a trackpad pinch and what canvas editors zoom on.
+    "ui.pinch": async (p) => {
+      const x = Number(p.x), y = Number(p.y), deltaY = Number(p.deltaY);
+      if (![x, y, deltaY].every(Number.isFinite)) return;
+      const target = document.elementFromPoint(x, y) ?? document.body;
+      target.dispatchEvent(new WheelEvent("wheel", {
+        ctrlKey: true, deltaY, deltaMode: 0, clientX: x, clientY: y, bubbles: true, cancelable: true,
+      }));
+    },
   };
 
   window.addEventListener("message", async (e: MessageEvent) => {
