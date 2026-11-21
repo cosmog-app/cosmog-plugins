@@ -1,0 +1,63 @@
+# Tag <id>-v<version> (e.g. excalidraw-v0.2.0) on main to publish that plugin:
+# build -> zip -> sign -> GitHub release asset -> index.json entry on main.
+name: release
+
+on:
+  push:
+    tags: ["*-v*.*.*"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-index
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Parse tag
+        id: tag
+        run: |
+          tag="${GITHUB_REF_NAME}"
+          id="${tag%-v*}"
+          test -d "plugins/$id" || { echo "no plugins/$id for tag $tag"; exit 1; }
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/main || { echo "tag $tag is not on main"; exit 1; }
+          echo "id=$id" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - run: npm run build
+
+      - name: Pack and sign
+        env:
+          COSMOG_SIGNING_KEY: ${{ secrets.COSMOG_SIGNING_KEY }}
+          COSMOG_KEY_ID: cosmog-2026-1
+        run: node scripts/pack.mjs "plugins/${{ steps.tag.outputs.id }}" "$GITHUB_REF_NAME"
+
+      - name: GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" "release/${{ steps.tag.outputs.id }}-"*.zip \
+            --title "$GITHUB_REF_NAME" --notes "Signed with key cosmog-2026-1. Install from Cosmog > Plugins."
+
+      - name: Update index.json on main
+        run: |
+          git checkout main
+          git pull --ff-only origin main
+          node scripts/update-index.mjs "release/${{ steps.tag.outputs.id }}.entry.json"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.json
+          git commit -m "chore: publish $GITHUB_REF_NAME"
+          git push origin main

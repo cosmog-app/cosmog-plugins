@@ -5,7 +5,9 @@
   "apiVersion": 1,
   "kind": "document-editor",
   "entry": "index.html",
-  "platforms": ["desktop"],
+  "platforms": [
+    "desktop"
+  ],
   "minAppVersion": "1.1.42",
   "fileTypes": [
     {
@@ -15,5 +17,15 @@
       "template": "templates/empty.excalidraw"
     }
   ],
-  "permissions": []
+  "permissions": [],
+  "summary": "Sketch hand-drawn diagrams and whiteboards.",
+  "description": "Open and edit .excalidraw files straight from your buckets. Drawings save back to the same file, so they stay compatible with excalidraw.com and other Excalidraw apps.\n\nRuns offline in Cosmog's sandbox: no network access and no access to your accounts. Live collaboration and share links are turned off.",
+  "icon": "icon.svg",
+  "author": "Cosmog",
+  "license": "MIT",
+  "repository": "https://github.com/echosonusharma/cosmog-plugins/tree/main/plugins/excalidraw",
+  "upstream": {
+    "name": "Excalidraw",
+    "url": "https://github.com/excalidraw/excalidraw"
+  }
 }
