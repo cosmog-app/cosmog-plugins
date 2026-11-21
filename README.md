@@ -1,6 +1,6 @@
 # cosmog-plugins
 
-Plugins for [Cosmog](https://github.com/echosonusharma/cosmog). Design: `docs/PLUGINS.md` in the app repo.
+Plugins for [Cosmog](https://github.com/cosmog-app/cosmog). Design: `docs/PLUGINS.md` in the app repo.
 
 - `sdk/`: `@cosmog/plugin-sdk`, plugin side of protocol v1.
 - `plugins/excalidraw/`: Excalidraw document editor (desktop). The editor is

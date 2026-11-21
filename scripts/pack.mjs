@@ -7,7 +7,7 @@ import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 
 const [pluginDir, tag] = process.argv.slice(2);
-const { COSMOG_SIGNING_KEY: pem, COSMOG_KEY_ID: keyId, GITHUB_REPOSITORY: repo = "echosonusharma/cosmog-plugins" } = process.env;
+const { COSMOG_SIGNING_KEY: pem, COSMOG_KEY_ID: keyId, GITHUB_REPOSITORY: repo = "cosmog-app/cosmog-plugins" } = process.env;
 if (!pluginDir || !tag) throw new Error("usage: node scripts/pack.mjs <plugin-dir> <tag>");
 if (!pem || !keyId) throw new Error("COSMOG_SIGNING_KEY and COSMOG_KEY_ID must be set");
 
