@@ -1,5 +1,5 @@
 // Creates the store signing key. Private key: PKCS#8 PEM at the given path (mode 600), never printed.
-// Prints the public half for TRUSTED_KEYS in cosmog (src-tauri/src/plugins/store/keys.rs).
+// Prints the public half for TRUSTED_KEYS in cosmog (src-tauri/src/plugins/store/keys.rs) and scripts/trusted-keys.json.
 // Usage: node scripts/keygen.mjs <out.pem> <key-id>
 import { generateKeyPairSync } from "node:crypto";
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
