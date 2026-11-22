@@ -60,7 +60,9 @@ export function connect(h: Handlers, opts: Options = {}): Client {
 
   const methods: Record<string, (p: Record<string, unknown>, id?: string) => Promise<void>> = {
     "doc.load": async (p, id) => {
-      const bytes = p.bytes instanceof ArrayBuffer ? p.bytes : new ArrayBuffer(0);
+      // A blank document here would be saved over the real file.
+      if (!(p.bytes instanceof ArrayBuffer)) throw Object.assign(new Error("doc.load without bytes"), { code: "bad_request" });
+      const bytes = p.bytes;
       await h.onLoad({ name: String(p.name ?? ""), mime: String(p.mime ?? ""), bytes, readOnly: p.readOnly === true });
       dirty = false;
       reply(id, null);
@@ -115,7 +117,7 @@ export function connect(h: Handlers, opts: Options = {}): Client {
   if (opts.saveShortcut !== false) {
     // Capture phase so the editor never sees it; keys inside the iframe never reach the host.
     window.addEventListener("keydown", (e) => {
-      if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && e.key.toLowerCase() === "s") {
+      if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && e.code === "KeyS") {
         e.preventDefault();
         e.stopImmediatePropagation();
         send({ method: "shell.save" });
