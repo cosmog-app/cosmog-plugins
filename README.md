@@ -22,15 +22,18 @@ Cosmog lists what is in `index.json` (Plugins page) and installs signed zips fro
 
 1. Bump `version` in `plugins/<id>/public/cosmog-plugin.json` and commit to `main`.
 2. `git tag <id>-v<version> && git push origin <id>-v<version>`.
-3. The `release` workflow builds, zips, signs (secret `COSMOG_SIGNING_KEY`, key id `cosmog-2026-1`),
-   attaches the zip to a GitHub release and commits the new entry to `index.json` on `main`.
+3. The `release` workflow builds (no secrets), then zips and signs in the `release` environment
+   (secret `COSMOG_SIGNING_KEY`, key id `cosmog-2026-1`, needs a reviewer's approval), then attaches
+   the zip to a GitHub release and commits the new entry to `index.json` on `main`. A failed run can be
+   re-run as is. Zips are reproducible: rebuilding a tag gives the same sha256.
 
 Store page fields come from the manifest: `summary`, `description`, `icon`, `author`, `license`,
 `homepage`, `repository`, `upstream`.
 
 Signing key: made once with `node scripts/keygen.mjs <out.pem> <key-id>`. The private key lives only in
 the Actions secret and the owner's backup; the public half is compiled into Cosmog
-(`src-tauri/src/plugins/store/keys.rs`). A new key needs a Cosmog release before it can sign.
+(`src-tauri/src/plugins/store/keys.rs`) and listed in `scripts/trusted-keys.json`, which `pack.mjs`
+checks every signature against. A new key needs a Cosmog release before it can sign.
 
 ## Rules for plugins (sandboxed, null origin)
 

@@ -1,36 +1,43 @@
 # Tag <id>-v<version> (e.g. excalidraw-v0.2.0) on main to publish that plugin:
-# build -> zip -> sign -> GitHub release asset -> index.json entry on main.
+# build -> zip + sign -> GitHub release asset -> index.json entry on main.
+# Three jobs so the signing key never shares a job with npm install scripts or a write token,
+# and only the last job can write to the repo. Actions are pinned to commits.
 name: release
 
 on:
   push:
     tags: ["*-v*.*.*"]
 
-permissions:
-  contents: write
+permissions: {}
 
-concurrency:
-  group: release-index
-  cancel-in-progress: false
+env:
+  COSMOG_KEY_ID: cosmog-2026-1
 
 jobs:
-  release:
+  build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      id: ${{ steps.tag.outputs.id }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Parse tag
         id: tag
+        env:
+          TAG: ${{ github.ref_name }}
         run: |
-          tag="${GITHUB_REF_NAME}"
-          id="${tag%-v*}"
-          test -d "plugins/$id" || { echo "no plugins/$id for tag $tag"; exit 1; }
-          git merge-base --is-ancestor "$GITHUB_SHA" origin/main || { echo "tag $tag is not on main"; exit 1; }
+          [[ "$TAG" =~ ^([a-z0-9][a-z0-9-]*)-v[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "bad tag $TAG"; exit 1; }
+          id="${BASH_REMATCH[1]}"
+          test -d "plugins/$id" || { echo "no plugins/$id for tag $TAG"; exit 1; }
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/main || { echo "tag $TAG is not on main"; exit 1; }
           echo "id=$id" >> "$GITHUB_OUTPUT"
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version: 22
           cache: npm
@@ -38,26 +45,98 @@ jobs:
       - run: npm ci
       - run: npm run build
 
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: dist
+          path: plugins/${{ steps.tag.outputs.id }}/dist
+          if-no-files-found: error
+          retention-days: 7
+
+  sign:
+    needs: build
+    runs-on: ubuntu-latest
+    # Protection rules on this environment (required reviewers) gate every use of the key.
+    environment: release
+    permissions:
+      contents: read
+    steps:
+      # Trusted scripts from the tagged commit; nothing from npm runs in this job.
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 22
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: dist
+          path: plugins/${{ needs.build.outputs.id }}/dist
+
       - name: Pack and sign
         env:
           COSMOG_SIGNING_KEY: ${{ secrets.COSMOG_SIGNING_KEY }}
-          COSMOG_KEY_ID: cosmog-2026-1
-        run: node scripts/pack.mjs "plugins/${{ steps.tag.outputs.id }}" "$GITHUB_REF_NAME"
+          ID: ${{ needs.build.outputs.id }}
+          TAG: ${{ github.ref_name }}
+        run: node scripts/pack.mjs "plugins/$ID" "$TAG"
 
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release
+          path: release/
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    needs: [build, sign]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      ID: ${{ needs.build.outputs.id }}
+      TAG: ${{ github.ref_name }}
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 22
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: release
+          path: release
+
+      # Re-runnable: an existing release gets its asset replaced instead of failing the run.
       - name: GitHub release
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$GITHUB_REF_NAME" "release/${{ steps.tag.outputs.id }}-"*.zip \
-            --title "$GITHUB_REF_NAME" --notes "Signed with key cosmog-2026-1. Install from Cosmog > Plugins."
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "release/$ID-"*.zip --clobber
+          else
+            gh release create "$TAG" "release/$ID-"*.zip \
+              --title "$TAG" --notes "Signed with key $COSMOG_KEY_ID. Install from Cosmog > Plugins."
+          fi
 
+      # No concurrency group: GitHub keeps one pending run per group and cancels the rest, which would
+      # drop releases. Parallel runs instead rebase onto each other's index.json commits.
       - name: Update index.json on main
         run: |
-          git checkout main
-          git pull --ff-only origin main
-          node scripts/update-index.mjs "release/${{ steps.tag.outputs.id }}.entry.json"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.json
-          git commit -m "chore: publish $GITHUB_REF_NAME"
-          git push origin main
+          for attempt in 1 2 3 4 5; do
+            git fetch origin main
+            git reset --hard origin/main
+            node scripts/update-index.mjs "release/$ID.entry.json"
+            if git diff --quiet -- index.json; then echo "index.json already up to date"; exit 0; fi
+            git add index.json
+            git commit -m "chore: publish $TAG"
+            if git push origin HEAD:main; then exit 0; fi
+            echo "push rejected, retrying ($attempt)"
+            sleep $((attempt * 5))
+          done
+          echo "could not update index.json"; exit 1
