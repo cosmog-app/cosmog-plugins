@@ -11,9 +11,9 @@ type Api = ExcalidrawImperativeAPI;
 type State = ReturnType<Api["getAppState"]>;
 type Files = ReturnType<Api["getFiles"]>;
 
-// What a save would change: elements, saved appState fields, embedded files.
+// What a save would change: elements, the appState fields serializeAsJSON keeps, embedded files.
 function signature(elements: Parameters<typeof hashElementsVersion>[0], s: State, files: Files): string {
-  return `${hashElementsVersion(elements)}|${s.viewBackgroundColor}|${s.gridModeEnabled}|${s.gridSize}|${Object.keys(files).length}`;
+  return `${hashElementsVersion(elements)}|${s.viewBackgroundColor}|${s.gridModeEnabled}|${s.gridSize}|${s.gridStep}|${Object.keys(files).length}`;
 }
 
 const FONT_NAME = new Map(Object.entries(FONT_FAMILY).map(([name, id]) => [id, name]));
