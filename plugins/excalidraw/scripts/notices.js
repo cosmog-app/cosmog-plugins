@@ -45,7 +45,10 @@ for (const { name, version, dir } of [...seen.values()].sort((a, b) => a.name.lo
 const header = `Third-party software bundled in this plugin.
 
 The editor is Excalidraw (https://github.com/excalidraw/excalidraw), free and open source under the
-MIT License, by Excalidraw and its contributors. Its fonts ship as part of @excalidraw/excalidraw.
+MIT License, by Excalidraw and its contributors. Its fonts ship as part of @excalidraw/excalidraw and
+are listed after the packages, under their own licenses.
 `;
-writeFileSync(join(here, "dist", "THIRD_PARTY_NOTICES.txt"), `${header}\n${parts.join("\n")}`);
+// Fonts carry their own licenses (mostly OFL, which must travel with the font), not Excalidraw's MIT.
+const fonts = readFileSync(join(here, "notices", "fonts.txt"), "utf8").trim();
+writeFileSync(join(here, "dist", "THIRD_PARTY_NOTICES.txt"), `${header}\n${parts.join("\n")}\n${fonts}\n`);
 console.log(`notices: ${parts.length} packages${missing.length ? `, no license text for ${missing.join(", ")}` : ""}`);
