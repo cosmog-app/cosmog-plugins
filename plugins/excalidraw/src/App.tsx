@@ -46,7 +46,17 @@ export function App() {
   const [theme, setTheme] = useState<Theme>("light");
   const [readOnly, setReadOnly] = useState(false);
   const apiReady = useMemo(() => deferred<Api>(), []);
+  // Excalidraw sets up its (empty) scene after the API exists; a document applied before that is
+  // wiped, and saving would then store an empty drawing. Loads wait for this.
+  const initialized = useMemo(() => deferred<void>(), []);
+  // Resolved by the next onChange: updateScene's appState lands with React's next render.
+  const changeWaiters = useRef<(() => void)[]>([]);
+  const nextChange = () => new Promise<void>((r) => {
+    changeWaiters.current.push(r);
+    window.setTimeout(r, 1000);
+  });
   const baseline = useRef<string | null>(null);
+  const initDone = useRef(false);
   // Signature of what the host last serialized; becomes the baseline once the host saves it.
   const serialized = useRef<string | null>(null);
   const client = useRef<Client | null>(null);
@@ -58,6 +68,7 @@ export function App() {
     client.current = connect({
       async onLoad(doc) {
         const api = await apiReady.promise;
+        await initialized.promise;
         let data = null;
         if (doc.bytes.byteLength > 0) {
           try {
@@ -70,13 +81,17 @@ export function App() {
           }
         }
         const r = restore(data, null, null, { repairBindings: true });
+        // No dirty reports while the scene is being replaced.
+        baseline.current = null;
         setReadOnly(doc.readOnly);
         api.updateScene({ elements: r.elements, appState: { ...r.appState, theme: themeRef.current }, captureUpdate: CaptureUpdateAction.NEVER });
         api.addFiles(Object.values(r.files));
         loadSceneFonts(r.elements);
         api.history.clear();
         api.scrollToContent(undefined, { fitToContent: true, animate: false });
+        await nextChange();
         baseline.current = signature(api.getSceneElementsIncludingDeleted(), api.getAppState(), api.getFiles());
+        client.current?.setDirty(false);
       },
       async onSerialize() {
         const api = await apiReady.promise;
@@ -108,14 +123,18 @@ export function App() {
 
   return (
     <Excalidraw
-      excalidrawAPI={(api) => {
-        apiReady.resolve(api);
-        // The blank canvas counts as clean until the host loads a document.
-        baseline.current ??= signature(api.getSceneElementsIncludingDeleted(), api.getAppState(), api.getFiles());
-      }}
+      excalidrawAPI={(api) => apiReady.resolve(api)}
       theme={theme}
       viewModeEnabled={readOnly}
       onChange={(elements, appState, files) => {
+        for (const r of changeWaiters.current.splice(0)) r();
+        if (!appState.isLoading && !initDone.current) {
+          initDone.current = true;
+          // The blank canvas counts as clean until the host loads a document.
+          baseline.current = signature(elements, appState, files);
+          initialized.resolve();
+          return;
+        }
         if (baseline.current === null) return;
         client.current?.setDirty(signature(elements, appState, files) !== baseline.current);
       }}
