@@ -4,7 +4,7 @@
     {
       "id": "excalidraw",
       "name": "Excalidraw",
-      "version": "0.1.3",
+      "version": "0.1.4",
       "summary": "Sketch hand-drawn diagrams and whiteboards.",
       "description": "Open and edit .excalidraw files straight from your buckets. Drawings save back to the same file, so they stay compatible with excalidraw.com and other Excalidraw apps.\n\nExcalidraw is free, open source software (MIT) made by Excalidraw and its contributors. This plugin packages their editor unchanged for Cosmog; the credit for the editor is theirs. License notices for everything bundled ship in the package as THIRD_PARTY_NOTICES.txt.\n\nRuns offline in Cosmog's sandbox: no network access and no access to your accounts. Live collaboration and share links are turned off.",
       "icon": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjggMTI4Ij4KICA8cmVjdCB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgcng9IjI4IiBmaWxsPSIjNjk2NWRiIi8+CiAgPHBhdGggZD0iTTM0IDc4YzEwLTI2IDIyLTM4IDMwLTM0cy02IDIyIDQgMjYgMTgtMTQgMjYtMjYiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSI3IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KICA8cmVjdCB4PSIzMCIgeT0iODYiIHdpZHRoPSIyNiIgaGVpZ2h0PSIxOCIgcng9IjQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSI2IiB0cmFuc2Zvcm09InJvdGF0ZSgtNiA0MyA5NSkiLz4KICA8Y2lyY2xlIGN4PSI4NiIgY3k9Ijk0IiByPSIxMSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjYiLz4KPC9zdmc+Cg==",
@@ -26,13 +26,13 @@
           "label": "Drawing"
         }
       ],
-      "releasedAt": "2026-11-21T12:04:48.525Z",
+      "releasedAt": "2026-11-23T05:23:52.390Z",
       "download": {
-        "url": "https://github.com/cosmog-app/cosmog-plugins/releases/download/excalidraw-v0.1.3/excalidraw-0.1.3.zip",
-        "size": 15767177,
-        "sha256": "66872265d76a75ca86a4c5042eea67fdfccd0ae3d95047e42289e8ee123a3ccf",
+        "url": "https://github.com/cosmog-app/cosmog-plugins/releases/download/excalidraw-v0.1.4/excalidraw-0.1.4.zip",
+        "size": 15769500,
+        "sha256": "1dc161ad350fa9c4e148dd082fee429c29b3c31de20130d90e8c65026bc5ca78",
         "keyId": "cosmog-2026-1",
-        "signature": "NcGnKiGdtquzDT5dGWEYIyMrmsULpVj77FOZaouL15aNuJ/kHhw+4KHkDe1AAL1d+6iC8Qmt5fVHYB4FXd+pDg=="
+        "signature": "3mPut7ZJdTIU8Hsv7Mj7+OtRvwlrzVbclGrJ/s5paRpS02V882ICWhR7YNxuIPPQ24bHOXv6cMWg8viL0+fBBg=="
       }
     }
   ]
